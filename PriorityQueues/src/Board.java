@@ -13,10 +13,7 @@ public class Board {
     public String toString() {
         StringBuilder str = new StringBuilder(tiles[0].length + "\n");
         for (int[] i : tiles) {
-            for (int j : i) {
-                str.append(j);
-                str.append(' ');
-            }
+            for (int j : i) str.append(j);
             str.append("\n");
         }
         str.append("\n");
@@ -39,6 +36,9 @@ public class Board {
     }
 
     // sum of Manhattan distances between tiles and goal
+    // The Manhattan distance between a board and the goal board
+    // is the sum of the Manhattan distances (sum of the vertical and horizontal distance)
+    // from the tiles to their goal positions.
     public int manhattan() {
         int sum = 0;
         for (int row = 0; row < tiles.length; row++)
@@ -62,15 +62,16 @@ public class Board {
         if (y == this) return true;
         if (!(y instanceof Board)) return false;
         Board other = (Board) y;
-//        if (other.tiles.length != tiles.length) {
-//            return false;
-//        }
-//        for (int row = 0; row < tiles.length; row++)
-//            for (int col = 0; col < tiles.length; col++)
-//                if (other.tiles[row][col] != block(row, col)) return false;
-//
-//        return true;
-        return other.toString().equals(toString());
+        if (other.tiles.length != tiles.length) {
+            return false;
+        }
+        // comparing the two boards in 2-d loop instead of using `toString`,
+        // because toString method also using 2-d loop
+        for (int row = 0; row < tiles.length; row++)
+            for (int col = 0; col < tiles.length; col++)
+                if (other.tiles[row][col] != tile(row, col)) return false;
+
+        return true;
     }
 
     // all neighboring boards
@@ -108,22 +109,24 @@ public class Board {
 
     private boolean isInPlace(int row, int col) {
         int block = tile(row, col);
-
-        return !isSpace(block) && block != goalFor(row, col);
-    }
-
-    // mark a plot's position starting from 1
-    private int goalFor(int row, int col) {
-        return row * dimension() + col + 1;
+        // block is not space and not in the place it should be.
+        return !isSpace(block) && block != row * dimension() + col + 1;
     }
 
     // calculate the distance between a given block and the space
     private int calculateDistances(int row, int col) {
-        int tile = tile(row, col);
         // 3 6 4
         // 1 7 5
         // 2 0 8
-        //  distance =
+        // for example: we need to calculate the distance between [0,0] and [2,2]
+        // distance = (x2 - x1) + (y2 - y1)
+        // for this case we just need to figure out the Manhattan Distance to
+        // 1 2 3
+        // 4 5 6
+        // 7 8 0
+        // then we assuming each tile will be a natual number from 1 to dimension * dimension -1;
+        // tile = index - 1
+        int tile = tile(row, col);
         return (isSpace(tile)) ? 0 : Math.abs(row - (tile - 1) / dimension()) + Math.abs(col - (tile - 1) % dimension());
     }
 
@@ -168,4 +171,15 @@ public class Board {
         return block == 0;
     }
 
+    public static void main(String[] args) {
+        Board board = new Board(new int[][]{
+//                {3, 6, 4},
+//                {1, 7, 5},
+//                {2, 0, 8},
+                {1, 2, 3},
+                {4, 5, 6},
+                {7, 8, 0}
+        });
+        System.out.println(board.manhattan());
+    }
 }

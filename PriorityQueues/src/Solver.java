@@ -14,6 +14,7 @@ public class Solver {
         MinPQ<Move> twinMoves = new MinPQ<>();
         twinMoves.insert(new Move(initial.twin()));
 
+        // expand both of the queues until we find the bestMove
         while (true) {
             lastMove = expand(moves);
             if (lastMove != null || expand(twinMoves) != null) return;
@@ -46,6 +47,7 @@ public class Solver {
     // expand a block
     private Move expand(MinPQ<Move> moves) {
         if (moves.isEmpty()) return null;
+        // get the first element
         Move bestMove = moves.delMin();
         if (bestMove.board.isGoal()) return bestMove;
         for (Board neighbor : bestMove.board.neighbors()) {
